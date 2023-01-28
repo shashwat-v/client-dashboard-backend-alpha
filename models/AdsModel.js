@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 
 const adSchema = new mongoose.Schema({
-    adId: Number,
     clientId: Number,
     sessionId: Number,
     campaignName: String,
