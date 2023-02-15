@@ -10,10 +10,10 @@ function gettingUsers (users, noOfBids, bidRank) {
     let ratios = []
     
     function divideIntoRatios(total, ratios) {
-        console.log(total)
+        console.log("total no of users inside divideIntoRatios", total)
         let result = [];
         let sum = ratios.reduce((a, b) => a + b, 0);
-        console.log(sum)
+        console.log("sum of the values inside ratios", sum)
         for (let i = 0; i < ratios.length; i++) {
             let value = Math.floor((ratios[i]/sum) * total)
             if (value > 200) {
@@ -36,7 +36,8 @@ function gettingUsers (users, noOfBids, bidRank) {
     console.log(ratios)
     
     let assignedUserToBid = divideIntoRatios(x, ratios)[bidRank-1]
-    console.log(assignedUserToBid); 
+    console.log("assigned users to the bid", assignedUserToBid); 
+    
     return assignedUserToBid
 }
 
@@ -119,6 +120,7 @@ const postBid = async (req, res) => {
 
         let users
         let bids
+
         User.countDocuments((err, count) => {
             if (err) {
                 console.log(err);
@@ -137,8 +139,20 @@ const postBid = async (req, res) => {
             }
         });
 
-        let assignedUsers = gettingUsers(users, bids, rank)
-        console.log(assignedUsers);
+        console.log(users);
+        console.log(bids);
+        console.log(rank);
+        // let assignedUsers = gettingUsers(users, bids, rank)
+        let assignedUsers = gettingUsers(1001, 20, 15)
+        console.log(assignedUsers); 
+
+        Ad.updateOne(
+            { "_id": clientId },
+            { $set: { 
+                "users": { $slice: assignedUsers },
+                "assignedUsers": assignedUsers 
+            } }
+          )
 
         res.status(201).json({ message: "post created", savedBid });
     } catch (err) {
