@@ -4,7 +4,7 @@ const User = require("../models/UsersModel");
 
 function gettingUsers (users, noOfBids, bidRank) {
     let no_of_users = users
-    let x = users// total users
+    let x = users // total users
     let y = noOfBids // total bids // we can only allow max of 50 clients in one bid
     let sno = 1
     let ratios = []
@@ -97,7 +97,11 @@ const postBid = async (req, res) => {
     const bidAmount = req.body.bidAmount;
     const newBid = new Bid({
         clientId: req.body.clientId,
-        bidAmount,
+        campaignBudget: {
+            perDay: req.body.perDay,
+            totalDays: req.body.totalDays
+        },
+        bidAmount
     });
 
     try {
