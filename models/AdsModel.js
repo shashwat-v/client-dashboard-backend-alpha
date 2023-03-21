@@ -19,6 +19,7 @@ const adSchema = new mongoose.Schema({
     },
     image: String,
     adContent: String,
+    adImpressions: Number,
     tags: [],
     assignedUsers: Number,
     users: []
