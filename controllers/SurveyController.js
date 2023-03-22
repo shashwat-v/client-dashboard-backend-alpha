@@ -7,7 +7,7 @@ exports.createSurvey = async (req, res) => {
     const newSurvey = new Survey({
       surveyName: req.body.surveyName,
       surveyDescription: req.body.surveyDescription,
-      clientId: req.body.clientId,
+      clientId: mongoose.Types.ObjectId(req.body.clientId), 
       totalQues: req.body.totalQues.map((question, index) => {
         const optionGroups = {};
         question.optionGroups.forEach((group) => {
@@ -40,6 +40,16 @@ exports.createSurvey = async (req, res) => {
   }
 };
 
+// Get all surveys created by a particular client
+exports.getSurveysByclient = async (req, res) => {
+  const clientId = req.headers.clientid;
+  try {
+    const surveys = await Survey.find({ clientId: clientId });
+    res.json(surveys);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
     
     
@@ -110,7 +120,41 @@ exports.getExpiredSurveys = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+//Get expierdsurveys of a particular client
+exports.getExpiredSurveysByclientid = async (req, res) => {
+  const clientId = req.headers.clientid;
+  try {
+    const expiredSurveysc = await Survey.find({
+      clientId: clientId,
+      endDate: { $lt: new Date() },
+    });
+    if (expiredSurveysc.length === 0) {
+      return res.status(404).json({ message: 'No expired surveys found for this client.' });
+    }
+    res.json(expiredSurveysc);
+   
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
+
+
+exports.getExpiredSurveyById = async (req, res) => {
+  const surveyId = req.params.id;
+  try {
+    const expiredSurvey = await Survey.findOne({
+      _id: surveyId,
+      endDate: { $lt: new Date() },
+    });
+    if (!expiredSurvey) {
+      return res.status(404).json({ message: "Expired survey not found" });
+    }
+    res.json(expiredSurvey);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 
 // Update a survey
@@ -159,28 +203,86 @@ exports.delete = (req, res) => {
       });
     });
 };
+//delete particulr survey of client
+exports.deleteSurvey = async (req, res) => {
+  const clientId = req.headers.clientid;
+
+  try {
+    const survey = await Survey.findOneAndDelete({
+      
+      clientId: clientId
+    });
+    if (!survey) {
+      return res.status(404).json({ message: "Survey not found" });
+    }
+    res.json({ message: "Survey deleted successfully!" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+//delete all survey
+exports.deleteAllSurveys = async (req, res) => {
+  try {
+    await Survey.deleteMany();
+    res.json({ message: "All surveys deleted successfully!" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+//delete expired survey of a particular client
+exports.deleteExpiredSurveys = async (req, res) => {
+  const clientId = req.headers.clientid;
+  try {
+    const expiredSurveys = await Survey.find({
+      clientId: clientId,
+      endDate: { $lt: new Date() },
+    });
+    if (expiredSurveys.length === 0) {
+      return res.status(404).json({ message: "No expired surveys found" });
+    }
+    await Survey.deleteMany({
+      clientId: clientId,
+      endDate: { $lt: new Date() },
+    });
+    res.json({ message: "Expired surveys deleted successfully!" });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
 
 
 
-// Middleware function to get survey by ID
+//  function to get survey by ID
 exports.findOne = (req, res) => {
-  Survey.findById(req.params.surveyId)
+  const surveyId = req.params.surveyId;
+  const clientId = req.body.clientId;
+
+  Survey.findById(surveyId)
     .then(survey => {
       if (!survey) {
         return res.status(404).send({
-          message: "Survey not found with id " + req.params.surveyId
+          message: "Survey not found with id " + surveyId
         });
       }
+
+      // Check if the client has created the survey
+      /*if (survey.clientId !== clientId) {
+        return res.status(403).send({
+          message: "You are not authorized to access this survey."
+        });
+      }*/
+
       res.send(survey);
     })
     .catch(err => {
       if (err.kind === "ObjectId") {
         return res.status(404).send({
-          message: "Survey not found with id " + req.params.surveyId
+          message: "Survey not found with id " + surveyId
         });
       }
       return res.status(500).send({
-        message: "Error retrieving survey with id " + req.params.surveyId
+        message: "Error retrieving survey with id " + surveyId
       });
     });
 };
