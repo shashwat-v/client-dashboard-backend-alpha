@@ -28,7 +28,7 @@ router.post('/uploadProfilePicture', upload.single('image'),  profileController.
 // Route to get a profile picture by its ID
 router.get("/:id", profileController.getProfilePictureById);
 //get all image
-router.get("/profile-pictures", profileController.getAllProfilePictures);
+router.get("/profile/pictures", profileController.getAllProfilePictures);
 // Route to update a profile picture by its ID
 router.put( "/:id",upload.single("image"), profileController.updateProfilePicture);
 
@@ -38,16 +38,3 @@ router.delete("/:id", profileController.deleteProfilePicture);
 
 
 module.exports = router;
-/*const express = require('express');
-const router = express.Router();
-const multer = require('multer');
-const profileController = require('../controllers/ImageController');
-
-// Multer memory storage for storing image in memory as buffer
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-// Upload a profile picture and save it to the database
-router.post('/uploadProfilePicture', upload.single('image'), profileController.uploadProfilePicture);
-
-module.exports = router;*/
