@@ -10,7 +10,7 @@ const surveySchema = new mongoose.Schema({
     required: true
   },
   clientId: {
-    type: String,
+    type:  mongoose.Schema.Types.ObjectId,
     ref: 'Client',
     required: true
   },
