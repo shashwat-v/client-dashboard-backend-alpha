@@ -7,6 +7,7 @@ const UsersRoute = require('./routes/UsersRoute');
 const SurveyRoute = require('./routes/SurveyRoute');
 const AuthRoute = require('./routes/AuthRoute');
 const ProfileRoute = require('./routes/ImageRoute');
+const path = require('path');
 
 const app = express();
 app.use(express.urlencoded({extended: false}));
@@ -42,9 +43,7 @@ app.use('/ads', AdsRoute);
 app.use('/users', UsersRoute);
 app.use('/survey', SurveyRoute);
 app.use('/auth', AuthRoute);
-app.use('/profile', ProfileRoute);
+app.use('/uploads', express.static('uploads'), ProfileRoute);
 
-// Serve uploaded images
-app.use('/images', express.static('uploads'));
 
 module.exports = { app };
