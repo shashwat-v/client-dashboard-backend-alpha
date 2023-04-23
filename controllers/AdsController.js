@@ -5,7 +5,6 @@ const User = require('../models/UsersModel');
 
 let fileName
 
-// async await in multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
         cb(null, 'uploads')
